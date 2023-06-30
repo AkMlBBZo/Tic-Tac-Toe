@@ -34,9 +34,13 @@ def get_keyboard(user_id):
     keyboard.add(*buttons)
     return keyboard
 
-async def end_of_game(message:types.Message,chat_id,message_id):
-    await bot.edit_message_text(text="Вы победили",chat_id=chat_id, message_id=message_id)
-    await bot.edit_message_text(text="Вы проиграли",chat_id=int(str(BotDB.get_enemy_id(chat_id)[0])[1:][:-2]), message_id=int(str(BotDB.get_enemy_message_id(chat_id)[0])[1:][:-2]))
+async def end_of_game(message:types.Message,chat_id,message_id,action):
+    if action == 2:
+        await bot.edit_message_text(text="Вы победили",chat_id=chat_id, message_id=message_id)
+        await bot.edit_message_text(text="Вы проиграли",chat_id=int(str(BotDB.get_enemy_id(chat_id)[0])[1:][:-2]), message_id=int(str(BotDB.get_enemy_message_id(chat_id)[0])[1:][:-2]))
+    else:
+        await bot.edit_message_text(text="Вы победили, противник сдался",chat_id=chat_id, message_id=message_id)
+        await bot.edit_message_text(text="Вы проиграли",chat_id=int(str(BotDB.get_enemy_id(chat_id)[0])[1:][:-2]), message_id=int(str(BotDB.get_enemy_message_id(chat_id)[0])[1:][:-2]))
     BotDB.game_field(chat_id,111111111)
     BotDB.game_field(int(str(BotDB.get_enemy_id(chat_id)[0])[1:][:-2]),111111111)
 
@@ -66,7 +70,7 @@ async def update_num_text_fab(message: types.Message, n, chat_id, message_id):
     BotDB.turn(0,chat_id)
     BotDB.turn(1,int(str(BotDB.get_enemy_id(chat_id)[0])[1:][:-2]))
     if field[0]==field[1]==field[2]!=1 or field[0]==field[3]==field[6]!=1 or field[0]==field[4]==field[8]!=1 or field[2]==field[4]==field[6]!=1 or field[2]==field[5]==field[8]!=1 or field[6]==field[7]==field[8]!=1 or field[1]==field[2]==field[7]!=1 or field[3]==field[4]==field[5]!=1:
-        await end_of_game(message,chat_id,message_id)
+        await end_of_game(message,chat_id,message_id,2)
     elif field.count(1)==0:
         await draw(message,chat_id,message_id)
 
@@ -133,7 +137,7 @@ async def callbacks_num_change_fab(call: types.CallbackQuery, callback_data: dic
     elif action == "b8":
         await update_num_text_fab(call.message,8,call.message.chat.id,call.message.message_id)
     elif action == "b9":
-        await end_of_game(call.message,call.message.chat.id,call.message.message_id)
+        await end_of_game(call.message,int(str(BotDB.get_enemy_id(call.message.chat.id)[0])[1:][:-2]),int(str(BotDB.get_enemy_message_id(call.message.chat.id)[0])[1:][:-2]),1)
     await call.answer()
 
 
